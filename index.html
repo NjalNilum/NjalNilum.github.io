@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="apple-touch-icon" href="png/loco.png">
+    <link rel="icon" href="png/logo.png">
+
+    <title>Najl's place</title>
+    <meta name="description" content="Njal's humble little place on the internet.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Najl's place">
+    <meta property="og:description" content="Njal's humble little place on the internet.">
+    <meta property="og:url" content="https://njalnilum.github.io/njal.github.io/">
+    <meta property="og:image" content="https://njalnilum.github.io/njal.github.io/png/logo.png">
+
+    <script type="text/javascript" src="dat.gui.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'iconfont';
+            src: url('iconfont.ttf') format('truetype');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            -o-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font: 16px/1.4 'Lato', sans-serif;
+            color: #13133b;
+            -webkit-font-smoothing: antialiased;
+            font-smoothing: antialiased;
+        }
+
+        body {
+            background: rgb(0, 0, 0);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #canvas {
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .button {
+            opacity: 0.7;
+        }
+
+        .button:hover {
+            opacity: 0.85;
+        }
+
+        .button:active {
+            opacity: 1;
+        }
+
+        .buttonSize {
+            width: 40px;
+            height: 40px;
+        }
+
+        .buttonSizeMobile {
+            width: 30px;
+            height: 30px;
+        }
+
+        .socialMediaPanel {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            margin-left: 5px;
+            left: 5;
+            z-index: 20;
+        }
+
+        .socialMediaPanelChild {
+            -webkit-box-flex: 1 1 auto;
+            -moz-box-flex: 1 1 auto;
+            -webkit-flex: 1 1 auto;
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            margin-right: 5px;
+        }
+
+        .centerPlayButtonDiv {
+            position: fixed;
+            bottom: 50%;
+            right: 50%;
+            z-index: 20;
+            transform: rotate(-40deg);
+            transition: all 1.5s ease-in;
+        }
+
+        .centerPlayButton {
+            transform: rotate(40deg);
+        }
+
+        .infoButton{
+            font-size: 12px;
+            font-weight: bold;
+            color: rgb(199, 199, 199);
+            padding: 0px;
+            margin-top: 2px;
+            margin-left: 5px;
+            z-index: 20;
+        }
+
+
+        .infoBoxDiv {
+            position: fixed;
+            top: 5;
+            left: 5;
+            z-index: 20;
+        }
+
+        .infoBoxText {
+            font-size: 12px;
+            color: rgb(114, 114, 114);
+            margin-left: 5px;
+            padding: 2px;
+            opacity: 1;
+            transition: opacity 2s;
+        }
+
+        .stopPauseDiv {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            margin-right: 5px;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 4s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- Infobox -->
+    <div class="infoBoxDiv">
+        <p class="button infoButton" id="infoButton" onclick="ShowHideInfo()">hide info</p>
+        <div class="infoBoxText" id="infoBox">
+            <p> <span style="color: rgb(155, 155, 155); font-weight: bold;">p</span> - freeze screen</p>
+            <p> <span style="color: rgb(155, 155, 155); font-weight: bold;">n</span> - dol purnima</p>
+            <p> <span style="color: rgb(155, 155, 155); font-weight: bold;">esc</span> - leave fullscreen</p>
+            <p> <span style="color: rgb(155, 155, 155); font-weight: bold;">space bar</span> - take screenshot</p>
+        </div>
+    </div>
+
+    <!-- Play button moves to bottom right after clicking. -->
+    <div class="centerPlayButtonDiv">
+        <img class="button buttonSize centerPlayButton" id="btnPlay" src="png/play.png" alt="Press play"
+            onclick="PlayTheSoundAndSetDivToTop()"></img>
+    </div>
+
+    <!-- Control buttons for sound player -->
+    <div class=stopPauseDiv id="stopPauseDiv">
+        <img class="button buttonSize" id="btnStop" src="png/stop.png" alt="Press stop" onclick="StopTheSound()"></img>
+        <img class="button buttonSize" id="btnPause" src="png/pause.png" alt="Press pause"
+            onclick="PauseTheSound()"></img>
+    </div>
+
+    <!-- Links to social media in bottom left. -->
+    <div class="socialMediaPanel">
+        <a href="https://www.facebook.com/njal.official" target="_blank">
+            <img class="button buttonSize socialMediaPanelChild" id="btnFacebook" src="png/facebook.png"
+                alt="faebook"></img>
+        </a>
+        <a href="https://www.youtube.com/channel/UCOCZKlOz6cNs2qiIhls5cqQ" target="_blank">
+            <img class="button buttonSize socialMediaPanelChild" id="btnYoutube" src="png/youtube.png"
+                alt="youtube"></img>
+        </a>
+        <a href="https://soundcloud.com/user-66492517" target="_blank">
+            <img class="button buttonSize socialMediaPanelChild" id="btnYoutube" src="png/soundcloud.png"
+                alt="soundcloud"></img>
+        </a>
+    </div>
+
+    <script src="./script.js"></script>
+    <script src="./adds.js"></script>
+
+</body>
+
+</html>

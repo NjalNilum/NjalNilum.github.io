@@ -1,2 +1,6 @@
-# NjalNilum.github.io
-This repo is a little experiment with chrome and particles and things and maths.
+
+https://njalnilum.github.io/
+
+## License
+
+The code is available under the [MIT license](LICENSE)

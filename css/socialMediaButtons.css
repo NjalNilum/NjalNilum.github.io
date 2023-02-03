@@ -1,0 +1,55 @@
+.flexRow_socialMediaButtons {
+    margin-left: 10px;
+    margin-top: 20px;
+    width: fit-content;
+    height: 35px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+
+.socialMediaTextNeon {
+    text-align: left;
+    color: #72727200;
+    text-shadow:  0 0 4px rgb(90, 90, 90);
+    font-size: 20px;
+    font-weight: 100;
+    letter-spacing: 7px;
+    cursor: pointer;
+    transition: .75s all;
+    height: 35px;
+    margin: 0px;
+}
+
+.socialMediaButton {
+    opacity: 0.55;
+    filter: blur(2px);
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    transition: 0.75s all;
+}
+
+.flexRow_socialMediaButtons:hover .socialMediaButton {
+    margin-top: 2.5px;
+    opacity: 1;
+    filter: blur(0px);
+    width: 35px;
+    height: 35px;
+    transition: 1.25s all;
+}
+
+.flexRow_socialMediaButtons:active .socialMediaButton {
+    opacity: 1;
+    transition: 2s all;
+}
+
+.flexRow_socialMediaButtons:hover .socialMediaTextNeon {
+    letter-spacing: 20px;
+    color: rgb(226, 226, 226);
+    /* text-shadow: 0 0 1px rgb(241, 241, 241),
+                 0 0 20px rgb(199, 199, 199),
+                 0 0 40px rgb(236, 236, 236); */
+    transition: 1.25s all
+}

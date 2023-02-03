@@ -1,0 +1,27 @@
+.neon1{
+  text-align: left;
+  color: #68686800;
+  text-shadow:  0 0 4px rgb(90, 90, 90);
+  cursor: default;
+  letter-spacing: 1px;
+  transition: 2s all;
+}
+
+.neon1:hover {
+  color: rgb(145, 145, 145);
+  letter-spacing: 6px;
+  transition: .5s all
+}
+
+.neon2{
+  text-align: left;
+  color: #68686800;
+  text-shadow:  0 0 4px rgb(117, 117, 117);
+  cursor: default;
+  transition: 2s all;
+}
+
+.neon2:hover {
+  color: rgb(145, 145, 145);
+  transition: 1.5s all
+}

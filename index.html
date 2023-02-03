@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<link rel="apple-touch-icon" href="png/logo.png">
+	<link rel="icon" href="png/logo.png">
+
+	<title>Njal's place</title>
+	<meta name="description" content="Njal's humble little place on the internet.">
+
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="Njal's place">
+	<meta property="og:description" content="Njal's humble little place on the internet.">
+	<meta property="og:url" content="https://njalnilum.github.io/njal.github.io/">
+	<meta property="og:image" content="https://njalnilum.github.io/njal.github.io/png/logo.png">
+
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="css/glitch.css" />
+	<link rel="stylesheet" href="css/neon.css" />
+	<link rel="stylesheet" href="css/socialMediaButtons.css" />
+</head>
+
+<body>
+	<div>
+		<canvas class="canvasParticle" id="canvasParticle"></canvas>
+	</div>
+
+	<div id="header">
+		<h1 class="glitch" data-text="Njal">Njal</h1>
+	</div>
+
+	<div class="container_Footer">
+		<div class="divMediaButtonsParent">
+			<div class=divMediaButtons>
+				<img class="mediaButtons" id="btnPlay" src="png/play.png" alt="Press play" onclick="PressPlay()"></img>
+				<img class="mediaButtons" id="btnStop" src="png/stop.png" alt="Press stop"
+					onclick="PressStop()"></img>
+				<img class="mediaButtons" id="btnPause" src="png/pause.png" alt="Press pause"
+					onclick="PressPause()"></img>
+			</div>
+		</div>
+
+		<div class="footer">
+			<p class="footerContent neon1">#engineer</p>
+			<p class="footerContent neon1">#softwaredeveloper</p>
+			<p class="footerContent neon1">#hobbyist</p>
+			<p class="footerContent neon1">#musicproducing</p>
+			<p class="footerContent neon1">#composing</p>
+			<p class="footerContent neon1">#songwriting</p>
+			<p class="footerContent neon1">#guitar</p>
+			<p class="footerContent neon1">#shouts</p>
+			<p class="footerContent neon1">#vocals</p>
+			<p class="footerContent neon1">#coverartwork</p>
+			<p class="footerContent neon1">#2ddigital</p>
+			<p class="footerContent neon1">#art</p>
+			<p class="footerContent neon1">#writing</p>
+		</div>
+	</div>
+
+
+	<!-- <div class="dockLeft"> -->
+	<div class="container_left">
+		<div class="scrollableDivLeft">
+			<div class="informationBox neon2">
+				<p>Eine schöne Geschichte will ich mir gern überlegen.
+					Eine schöne Stunde will ich gerne vergeuden.
+					Eine schöne Kunst will nicht nur erleben.
+
+					Was ihr hier findet, ist vielleicht voll für den Arsch. Ein Spielplatz ists, der mir die Zeit
+					vertreibt.
+					Und ich will nichts lieber als etwas anderes.</p>
+				<p>A beautiful story I would like to think about.
+					A beautiful hour I would like to waste.
+					A beautiful art I do not only want to experience.
+
+					What you find here is perhaps full for the ass. A playground is what passes my time.
+					And I want nothing more than something else.</p>
+			</div>
+
+			<div class="containerSocialMediaButtons">
+				<div class="containerLeftChild">
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://www.facebook.com/njal.official" target="_blank">
+							<img class="socialMediaButton" id="btnFacebook" src="png/facebook.png" alt="facebook"></img>
+						</a>
+						<a href="https://www.facebook.com/njal.official" target="_blank">
+							<p class="socialMediaTextNeon">facebook</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://www.youtube.com/channel/UCOCZKlOz6cNs2qiIhls5cqQ" target="_blank">
+							<img class="socialMediaButton" id="btnyoutube" src="png/youtube.png" alt="youtube"></img>
+						</a>
+						<a href="https://www.youtube.com/channel/UCOCZKlOz6cNs2qiIhls5cqQ" target="_blank">
+							<p class="socialMediaTextNeon">youtube</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://soundcloud.com/njal-official" target="_blank">
+							<img class="socialMediaButton" id="btnsoundcloud" src="png/soundcloud.png"
+								alt="soundcloud"></img>
+						</a>
+						<a href="https://soundcloud.com/njal-official" target="_blank">
+							<p class="socialMediaTextNeon">soundcloud</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://njal.bandcamp.com" target="_blank">
+							<img class="socialMediaButton" id="btnbandcamp" src="png/bandcamp.png" alt="bandcamp"></img>
+						</a>
+						<a href="https://njal.bandcamp.com" target="_blank">
+							<p class="socialMediaTextNeon">bandcamp</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://www.deviantart.com/njalnilum" target="_blank">
+							<img class="socialMediaButton" id="btndeviantart" src="png/deviantart.png"
+								alt="deviantart"></img>
+						</a>
+						<a href="https://www.deviantart.com/njalnilum" target="_blank">
+							<p class="socialMediaTextNeon">deviantart</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://www.artstation.com/njalnilum" target="_blank">
+							<img class="socialMediaButton" id="btnartstation" src="png/artstation.png"
+								alt="artstation"></img>
+						</a>
+						<a href="https://www.artstation.com/njalnilum" target="_blank">
+							<p class="socialMediaTextNeon">artstation</p>
+						</a>
+					</div>
+					<div class="flexRow_socialMediaButtons">
+						<a href="https://github.com/NjalNilum" target="_blank">
+							<img class="socialMediaButton" id="btngithub" src="png/github.png" alt="github"></img>
+						</a>
+						<a href="https://github.com/NjalNilum" target="_blank">
+							<p class="socialMediaTextNeon">github</p>
+						</a>
+					</div>
+				</div>
+			</div> <!-- containerSocialMediaButtons -->
+		</div>
+	</div> <!-- container_left -->
+	<!-- </div> -->
+
+
+	<div class="extra_right">
+		<div class="scrollableDivRight">
+			<a href="https://www.deviantart.com/njalnilum/art/Marya-and-Vlad-947267307" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-marya-and-vlad.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/The-Blacksmith-of-Archon-946329234" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-der-schmied-von-archon.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Die-Furcht-des-Todes-945306665" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-die-furcht-des-todes.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Kasdeya-et-Asmodeus-941638298" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-kasdeya-asmodeus.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/The-Holy-Night-Die-Heilige-Nacht-942294772" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-die-heilige-nacht.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Don-t-Say-a-Word-935464906" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-sag-kein-wort.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Adam-und-Eva-934690224" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-adam-eva.jpg"></img>
+			</a>
+			<a href="https://www.artstation.com/artwork/wJRRoY" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-custos-mandracorum.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Ghul-937575904" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-ghul.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Ruin-937171542" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-ruin.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Innerer-Zwiespalt-934814474" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-innerer-zwiespalt.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/In-Statu-Nascendi-936467824" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-in-statu-nascendi.jpg"></img>
+			</a>
+			<a href="https://www.deviantart.com/njalnilum/art/Draugr-934315551" target="_blank">
+				<img class="imgSize" src="png/projects/njal-nilum-draugr.jpg"></img>
+			</a>
+		</div>
+	</div> <!-- extra_right  -->
+
+	<div id="content">
+	</div>
+
+
+
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+	<script src="js/math.js"></script>
+	<script src="js/color.js"></script>
+	<script src="js/audioPlayer.js"></script>
+	<script src="js/rectangleControl.js"></script>
+	<script src="js/particleParameter.js"></script>
+	<script src="js/orbitalParticle.js"></script>
+	<script src="js/canvasForParticle.js"></script>
+	<script src="js/main.js"></script>
+	
+</body>
+
+</html>

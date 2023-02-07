@@ -49,14 +49,19 @@ p {
 
 div#header {
     z-index: 20;
-    max-width: 400px;
-    width: 40%;
+    width: 100%;
     left: 0px;
     padding-left: 0px;
     padding-top: 0px;
     position: absolute;
     top: 0px;
     height: 60px;
+}
+
+.caption {
+    max-width: 400px;
+    width: 40%;
+    height: 61px;
     backdrop-filter: blur(4px);
 }
 
@@ -147,8 +152,7 @@ div#header h1 {
     transition: 0.5s all;
 }
 
-.container_Footer {
-    
+.container_Footer {   
     z-index: 21;
     position: fixed;
     max-height: 20%;
@@ -157,18 +161,29 @@ div#header h1 {
     width: 100%;
 }
 
+.divSwitchButtons {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.labelSwitchButtons {
+    margin-right: 2px; 
+}
+
 .divMediaButtonsParent {
     width: 100%;
     display: flex;
-    justify-content: center
+    justify-content: center;
 }
 
 .divMediaButtons {
     width: fit-content;
     backdrop-filter: blur(4px);
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-
 }
 
 .mediaButtons {

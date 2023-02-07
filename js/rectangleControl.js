@@ -16,6 +16,13 @@ class ConfigRectangleControl {
  * corners of the rectangle and the proximity values relative to the rectangles corners
  */
 class RectangleControl {
+
+    /**
+     * If active, all particles follow the trailing mouse position.
+     * If deactivated all particles move around screen center.
+     */
+    #mouseTrackingActive = false;
+
     /** Dimensions of the used recangle.
      * @type {Rectangle}
      */
@@ -88,8 +95,7 @@ class RectangleControl {
         this.#mouseProximities = new Proximity();
 
         this.#addEvents();
-        this.#updateDimensions();
-        this.#resetMousePositionToCenter();
+        this.UpdateRectAndMovement();
         this.#calculateMousePointerProximities();
 
 
@@ -133,6 +139,30 @@ class RectangleControl {
         this.#hasStarted = false;
         this.#resetMousePositionToCenter();
         this.#particleCanvas.ResetParticles();
+        this.UpdateRectAndMovement();
+        this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
+    }
+
+    /**
+     * Activate/Deactivate mouse tracking mode. If active parzticles will follow mouse pointer
+     * @param {boolean} toActive 
+     */
+    SetMouseTracking(toActive) {
+        this.#mouseTrackingActive = toActive;
+        this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
+        if (!this.#mouseTrackingActive) {
+            this.#resetMousePositionToCenter();
+        }
+    }
+
+    /** */
+    UpdateRectAndMovement() {
+        this.#referenceRect.UpdateRect(window.innerWidth * this.#dpr, window.innerHeight * this.#dpr);
+        this.#particleCanvas.UpdateDimensions(this.#referenceRect.Width(), this.#referenceRect.Height());
+        
+        if (!this.#mouseTrackingActive) {
+            this.#resetMousePositionToCenter();
+        }
     }
 
     /**
@@ -162,37 +192,38 @@ class RectangleControl {
      */
     #addEvents() {
         window.addEventListener('resize', () => {
-            this.#updateDimensions();
+            this.UpdateRectAndMovement();
         });
 
         let isTouch = 'ontouchstart' in window;
         if (isTouch) {
             /**
-             * Touchstart on whole browser window. 
-             * */
-            window.addEventListener("touchstart", (event) => {
+            * Touchmove on whole browser window. 
+            * */
+            document.addEventListener("touchmove", (event) => {
                 if (event.touches.length === 1) {
                     event.preventDefault();
                 }
-                this.#particleCanvas.UpdateOrbit(false);
                 this.#mouseMoveStuff(event.touches[0].pageX * this.#dpr, event.touches[0].pageY * this.#dpr);
             });
 
             /**
-             * Touchmove on whole browser window. 
+             * Touchstart on whole browser window. 
              * */
-            window.addEventListener("touchmove", (event) => {
-                if (event.touches.length === 1) {
-                    event.preventDefault();
-                }
-                this.#mouseMoveStuff(event.touches[0].pageX * this.#dpr, event.touches[0].pageY * this.#dpr);
+            document.addEventListener("touchstart", (event) => {
+                // if (event.touches.length === 1) {
+                //     event.preventDefault();
+                // }
+                // this.#mouseMoveStuff(event.touches[0].pageX * this.#dpr, event.touches[0].pageY * this.#dpr);
+                this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
             });
 
             /**
              * Touchend on whole browser window. 
              * */
-            window.addEventListener("touchend", (event) => {
+            document.addEventListener("touchend", (event) => {
                 this.#resetMousePositionToCenter();
+                this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
             });
         }
 
@@ -200,30 +231,25 @@ class RectangleControl {
         /**
          * Mousemove on whole browser window. 
          * */
-        window.addEventListener("mousemove", (event) => {
+        document.addEventListener("mousemove", (event) => {
             this.#mouseMoveStuff(event.clientX * this.#dpr, event.clientY * this.#dpr);
         });
 
         /**
          * Mouseenter on whole browser window. 
          * */
-        window.addEventListener("mouseenter", (event) => {
-            this.#particleCanvas.UpdateOrbit(true);
+        document.addEventListener("mouseenter", (event) => {
+            this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
         });
 
         /**
          * Mouseleave on whole browser window. 
          * */
-        window.addEventListener("mouseout", (event) => {
+        document.addEventListener("mouseleave", (event) => {
             this.#resetMousePositionToCenter();
+            this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
         });
 
-    }
-
-    /** Method changes the dimensions of the managed rectangle and the managed canvas. */
-    #updateDimensions() {
-        this.#referenceRect.UpdateRect(window.innerWidth * this.#dpr, window.innerHeight * this.#dpr);
-        this.#particleCanvas.UpdateDimensions(this.#referenceRect.Width(), this.#referenceRect.Height());
     }
 
     /**
@@ -232,11 +258,13 @@ class RectangleControl {
      * @param {number} newY New mouse position Y
      */
     #mouseMoveStuff(newX, newY) {
-        this.#mousePosition.x = newX;
-        this.#mousePosition.y = newY;
+        if (this.#mouseTrackingActive) {
+            this.#mousePosition.x = newX;
+            this.#mousePosition.y = newY;
 
-        this.#calculateMousePointerProximities();
-        this.#audioPlayer.SetVolume(this.#mouseProximities.GetProximities());
+            this.#calculateMousePointerProximities();
+            this.#audioPlayer.SetVolume(this.#mouseProximities.GetProximities());
+        }
     }
 
     /**
@@ -249,7 +277,6 @@ class RectangleControl {
         this.#calculateMousePointerProximities();
         this.#audioPlayer.SetVolume(this.#mouseProximities.GetProximities());
 
-        this.#particleCanvas.UpdateOrbit(false);
     }
 
     /** Update the trailed mouse position. 

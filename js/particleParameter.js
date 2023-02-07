@@ -73,9 +73,9 @@ class particleParameter {
         this.CurrentValue = getRandom(this.MinimumValue, this.MaximumValue);
     }
 
-    /** Randomize change rate by multiplication with random number [0.8, 1.2] and randomly change the sign. */
+    /** Randomize change rate by multiplication with random number [0.6, 1.4] and randomly change the sign. */
     RandomizeChangeRate() {
-        this.ChangeRate = getRandom(0.7, 1.3) * this.#originalChangeRate * changeSignRandom();
+        this.ChangeRate = getRandom(0.6, 1.4) * this.#originalChangeRate * changeSignRandom();
     }
 
     /** Clone current object 

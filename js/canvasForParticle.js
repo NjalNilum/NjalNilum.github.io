@@ -140,7 +140,6 @@ class CanvasForParticle {
         this.#originalParticleConfig = particleConfig;
         this.#colors = config.Colors;
         this.#referenceRect = referenceRect;
-        this.#config.DomCanvas.style.cursor = 'none';
         this.#ctx = this.#config.DomCanvas.getContext('2d');
         this.#ctx.globalAlpha = 1; // Probably not in use
         this.#ctx.globalFillStyle = this.#config.GlobalFillStyle;
@@ -191,7 +190,7 @@ class CanvasForParticle {
                 this.#particles[index].UpdateOrbit(this.#config.DefaultMaximumMouseMoveOrbit, this.#config.DefaultMaximumMouseMoveOrbit);
             }
             else {
-                this.#particles[index].UpdateOrbit(this.#referenceRect.Width() * 0.4, this.#referenceRect.Height() * 0.4,);
+                this.#particles[index].UpdateOrbit(this.#referenceRect.Width() * 0.35, this.#referenceRect.Height() * 0.35,);
             }
         }
     }

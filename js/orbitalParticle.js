@@ -11,10 +11,10 @@ class ConfigOrbitalParticle {
      * @type {particleParameter}
      */
     Speed = new particleParameter(
-        0.009,
+        0.004,
         0.02,
         0.00001,
-        0.01);
+        0.004);
 
     /**
      * Particle size in pixel.
@@ -22,10 +22,10 @@ class ConfigOrbitalParticle {
      * @type {particleParameter}
      */
     Size = new particleParameter(
-        1,
-        4,
-        0.01,
-        1);
+        0.5,
+        3,
+        0.03,
+        0.8);
 
     /** X orbit of particle in pixels. 
      * The changerate should not be too high for these parameters. Even a rate of change of 1 pixel per iteration leads to the track of 
@@ -36,7 +36,7 @@ class ConfigOrbitalParticle {
         10,
         300,
         0.3,
-        0);
+        5);
 
     /** Y orbit of particle in pixels 
      * The changerate should not be too high for these parameters. Even a rate of change of 1 pixel per iteration leads to the track of 
@@ -47,7 +47,7 @@ class ConfigOrbitalParticle {
         10,
         300,
         0.3,
-        0);
+        5);
 
     /** Rotation of the orbital ellipse of a particle 
      * @type {particleParameter}

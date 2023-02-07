@@ -23,6 +23,7 @@
 	<link rel="stylesheet" href="css/glitch.css" />
 	<link rel="stylesheet" href="css/neon.css" />
 	<link rel="stylesheet" href="css/socialMediaButtons.css" />
+	<link rel="stylesheet" href="css/switchButton.css" />
 </head>
 
 <body>
@@ -38,14 +39,35 @@
 		<div class="divMediaButtonsParent">
 			<div class=divMediaButtons>
 				<img class="mediaButtons" id="btnPlay" src="png/play.png" alt="Press play" onclick="PressPlay()"></img>
-				<img class="mediaButtons" id="btnStop" src="png/stop.png" alt="Press stop"
-					onclick="PressStop()"></img>
-				<img class="mediaButtons" id="btnPause" src="png/pause.png" alt="Press pause"
-					onclick="PressPause()"></img>
+				<img class="mediaButtons" id="btnStop" src="png/stop.png" alt="Press stop" onclick="PressStop()"></img>
+				<img class="mediaButtons" id="btnPause" src="png/pause.png" alt="Press pause" onclick="PressPause()"></img>
+
+				<div class=divSwitchButtons>
+					<label class="labelSwitchButtons">Mouse tracking</label>
+					<label class="switch">
+						<input type="checkbox" id="mouseTracking" onclick="PressMouseTracking()">
+						<span class="slider round"></span>
+					</label>
+				</div>
+				<div class=divSwitchButtons>
+					<label class="labelSwitchButtons">Full screen</label>
+					<label class="switch">
+						<input type="checkbox" id="fullScreen" onclick="PressFullScreen()">
+						<span class="slider round"></span>
+					</label>
+				</div>
+
+				<div class=divSwitchButtons>
+					<label class="labelSwitchButtons">Hide Njal</label>
+					<label class="switch">
+						<input type="checkbox" id="hideNjal" onclick="PressHideNjal()">
+						<span class="slider round"></span>
+					</label>
+				</div>
 			</div>
 		</div>
 
-		<div class="footer">
+		<div class="footer" id="footer">
 			<p class="footerContent neon1">#engineer</p>
 			<p class="footerContent neon1">#softwaredeveloper</p>
 			<p class="footerContent neon1">#hobbyist</p>
@@ -64,7 +86,7 @@
 
 
 	<!-- <div class="dockLeft"> -->
-	<div class="container_left">
+	<div class="container_left" id="containerLeft">
 		<div class="scrollableDivLeft">
 			<div class="informationBox neon2">
 				<p>Eine schöne Geschichte will ich mir gern überlegen.
@@ -150,7 +172,7 @@
 	<!-- </div> -->
 
 
-	<div class="extra_right">
+	<div class="extra_right" id="containerRight">
 		<div class="scrollableDivRight">
 			<a href="https://www.deviantart.com/njalnilum/art/Marya-and-Vlad-947267307" target="_blank">
 				<img class="imgSize" src="png/projects/njal-nilum-marya-and-vlad.jpg"></img>
@@ -164,7 +186,8 @@
 			<a href="https://www.deviantart.com/njalnilum/art/Kasdeya-et-Asmodeus-941638298" target="_blank">
 				<img class="imgSize" src="png/projects/njal-nilum-kasdeya-asmodeus.jpg"></img>
 			</a>
-			<a href="https://www.deviantart.com/njalnilum/art/The-Holy-Night-Die-Heilige-Nacht-942294772" target="_blank">
+			<a href="https://www.deviantart.com/njalnilum/art/The-Holy-Night-Die-Heilige-Nacht-942294772"
+				target="_blank">
 				<img class="imgSize" src="png/projects/njal-nilum-die-heilige-nacht.jpg"></img>
 			</a>
 			<a href="https://www.deviantart.com/njalnilum/art/Don-t-Say-a-Word-935464906" target="_blank">
@@ -208,7 +231,7 @@
 	<script src="js/orbitalParticle.js"></script>
 	<script src="js/canvasForParticle.js"></script>
 	<script src="js/main.js"></script>
-	
+
 </body>
 
 </html>

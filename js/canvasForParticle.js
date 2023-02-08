@@ -204,8 +204,6 @@ class CanvasForParticle {
         this.#ctx.rect(0, 0, canvasParticle.width, canvasParticle.height);
         this.#ctx.fillStyle = this.#config.GlobalFillStyle; // 
         this.#ctx.fill();
-
-
     }
 
     /** MustCall method
@@ -226,31 +224,45 @@ class CanvasForParticle {
      * Only if this method is called per iteration, particles are drawn to the canvas. 
      */
     DrawParticles() {
-        // All lines must be removed BEFORE repaint, otherwise lines coulde be removed accidently
-        this.#particles.forEach(particle => { particle.Lines.clear(); })
-        this.#doClostestStuff();
-        for (let index = 0; index < this.#particles.length; index++) {
-            var actualParticle = this.#particles[index];
+        // That's good, because so far either all the particles are in the transient or none are. At some point I'll rebuild, and then it'll all be for nothing again:-)
+        if (this.#particles[0].IsInit()) {
+            this.#particles.forEach(actualParticle => {
+                this.#drawParticle(actualParticle);
+                actualParticle.UpdateParameters(rectControl.MousePosition());
+            });
+        }
+        else {
+            this.#particles.forEach(actualParticle => {
+                actualParticle.Lines.clear();
+                this.#drawParticle(actualParticle);
+                actualParticle.UpdateParameters(rectControl.MousePosition());
 
-            // Paints a 360° (2*PI) circle at particle position and fills it
-            // So yes, this paints the particle.
-            this.#ctx.fillStyle = 'rgb(' + actualParticle.GetColor() + ')';
-            this.#ctx.beginPath();
-            this.#ctx.arc(actualParticle.GetPosition().x, actualParticle.GetPosition().y, actualParticle.GetSize() * this.#config.Dpr, 0, PI2, false);
-            this.#ctx.closePath();
-            this.#ctx.fill();
+                if (this.DoColorUpdates) {
+                    actualParticle.UpdateColor(this.#colors, this.#config.FactorForUsingLogisticColorFunction);
+                }
+            });
 
+            // Paint lines only when not in init.
             if (this.#config.MaximumLinkDistances > 0) {
-                this.#drawLines(actualParticle);
+                this.#doClostestStuff();
+                this.#particles.forEach(actualParticle => {
+                    this.#drawLines(actualParticle);
+                }); 
             }
-
-            actualParticle.UpdateParameters(rectControl.MousePosition(), index);
-            if (this.DoColorUpdates) {
-                actualParticle.UpdateColor(this.#colors, this.#config.FactorForUsingLogisticColorFunction);
-            }
+            
         }
     }
 
+    /** Paints a single particle to this canvas. */
+    #drawParticle(particle) {
+        // Paints a 360° (2*PI) circle at particle position and fills it
+            // So yes, this paints the particle.
+            this.#ctx.fillStyle = 'rgb(' + particle.GetColor() + ')';
+            this.#ctx.beginPath();
+            this.#ctx.arc(particle.GetPosition().x, particle.GetPosition().y, particle.GetSize() * this.#config.Dpr, 0, PI2, false);
+            this.#ctx.closePath();
+            this.#ctx.fill();
+    }
 
     /**
      * Private method is called automatically in DrawParticles().
@@ -315,8 +327,6 @@ class CanvasForParticle {
      * the found particle is entered as a reference in a list (Closest) in the iterated particle. In the same way, actualParticle is entered in the list 'Closest' 
      * in 'innerParticle'. This prevents ring dependencies. 
      * In addition, a value for the opacity is calculated depending on the distance between the two particles.
-     * 
-     * TODO: This may not belong in this method, but actually the opacity must be determined anew at each iteration. That is still missing.
      */
     #doClostestStuff() {
         for (let index = 0; index < this.#particles.length; index++) {
@@ -354,7 +364,7 @@ class CanvasForParticle {
                     if (distance < this.#config.MaximumLinkDistances) {
 
                         if ((innerParticle.Closest.size < this.#config.MaximumNumberOfLines)) {
-                            var opacity = (1 - (distance / this.#config.MaximumLinkDistances));
+                            var opacity = (1 - (distance / this.#config.MaximumLinkDistances));  // TODO opacity: This may not belong in this method, but actually the opacity of line start and end must be determined new at each iteration. That is still missing.
                             actualParticle.Opacities.set(innerParticle.GetIndex(), opacity);
                             innerParticle.Opacities.set(actualParticle.GetIndex(), opacity);
 

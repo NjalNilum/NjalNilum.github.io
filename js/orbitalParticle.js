@@ -208,7 +208,8 @@ class OrbitalParticle {
     #diretionOfRotation;
 
     /**
-     * 
+     * If true, the particle is in the transient process. The settling process continues until the current position of the 
+     * particle is very close to 'newOrbitalCenter' (UpdateParameters).
      */
     #init;
 
@@ -296,6 +297,13 @@ class OrbitalParticle {
     }
 
     /**
+     * @returns {boolean} If true, the particle is in the transient process.
+     */
+    IsInit() {
+        return this.#init;
+    }
+
+    /**
      * Set max values of orbital range.
      * @param {number} xmaX New max value for orbitX.
      * @param {number} maxY New max value for orbitY.
@@ -313,10 +321,13 @@ class OrbitalParticle {
     UpdateParameters(newOrbitalCenter) {
         this.#orbitalCenter.AdaptToNewPoint(newOrbitalCenter, this.#orbitalCenterAdaption);
 
+        /** TODO: The more I come to this place, the more I think this doesn't belong here. Maybe the Canvas has to tell the particles 
+         * when they are in the transient process. Then you would only check for this.#init here. */
         if (this.#init) {
             this.#position = this.#orbitalCenter;
             this.#orbitalCenterAdaption *= 1.009;
             if (this.#position.distanceTo(newOrbitalCenter) < 5) {
+                // End init mode
                 this.#init = false;
                 // Reset adaption
                 this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;

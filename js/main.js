@@ -31,30 +31,23 @@ let rectControl = new RectangleControl(configRectControl, refercenSystem, partic
 rectControl.Start();
 
 
-
-function PressPlay() {
-    audioPlayer.Play();
-    particleCanvas.DoColorUpdates = true;
-
-    rectControl.Start();
-}
-
+/** Click on pause button */
 function PressPause() {
     audioPlayer.Pause();
-
     rectControl.Pause();
 }
 
+/** Click on stop button */
 function PressStop() {
     audioPlayer.Stop();
     rectControl.Reset();
     particleCanvas.DoColorUpdates = false;
 }
 
+/** Click on PLay button */
 function PressPlay() {
     audioPlayer.Play();
     particleCanvas.DoColorUpdates = true;
-
     rectControl.Start();
 }
 

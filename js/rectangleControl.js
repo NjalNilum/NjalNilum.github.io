@@ -135,6 +135,7 @@ class RectangleControl {
         this.#hasStarted = false;
     }
 
+
     Reset() {
         this.#hasStarted = false;
         this.#resetMousePositionToCenter();
@@ -222,7 +223,6 @@ class RectangleControl {
              * Touchend on whole browser window. 
              * */
             document.addEventListener("touchend", (event) => {
-                this.#resetMousePositionToCenter();
                 this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
             });
         }

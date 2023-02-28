@@ -62,17 +62,17 @@ class ConfigParticleCanvas {
 
     /**
      * The corner colors of the canvas.
-     * Corner A = [0, 190, 40];  // left top
-     * Corner B = [255, 190, 0]; // right top
+     * Corner A = [0, 190, 40];   // left top
+     * Corner B = [255, 190, 0];  // right top
      * Corner C = [255, 10, 10];  // right bottom
      * Corner D = [10, 10, 255];  // left bottom
-     * @type {Array<number[]>}
+     * @type {Color[]}
      */
     Colors = [
-        [0, 190, 40],
-        [255, 190, 0],
-        [255, 10, 10],
-        [10, 10, 255]];
+        new Color(0, 190, 40),
+        new Color(255, 190, 0),
+        new Color(255, 10, 10),
+        new Color(10, 10, 255)];
 }
 
 /**
@@ -105,22 +105,29 @@ class CanvasForParticle {
 
     /**
     * The corner colors of the canvas.
-    * Corner A = [0, 190, 40];  // left top
-    * Corner B = [255, 190, 0]; // right top
+    * Corner A = [0, 190, 40];   // left top
+    * Corner B = [255, 190, 0];  // right top
     * Corner C = [255, 10, 10];  // right bottom
     * Corner D = [10, 10, 255];  // left bottom
-    * @type {Array<number[]>}
+    * @type {Color[]}
     */
-    #colors = [
-        [0, 190, 40],
-        [255, 190, 0],
-        [255, 10, 10],
-        [10, 10, 255]];
+    #cornerColors = [
+        new Color(0, 190, 40),
+        new Color(255, 190, 0),
+        new Color(255, 10, 10),
+        new Color(10, 10, 255)];
 
     /** Array of particles to show on canvas 
      * @type {OrbitalParticle[]}
      */
     #particles;
+
+    /**
+     * This array contains objects for drawing a particle scatterer. When the mouse is clicked on the canvas, an object is to be added to this array. 
+     * At each iteration it is then checked whether and how many scatter objects are present that need to be drawn. The number is limited.
+     * @type {particleScatterEvent[]}
+     */
+    #scatterMovements;
 
     /** 
      * If true, the colour of each particle is recalculated per iteration and depending on the proximity. Otherwise, the colour remains at the last value.
@@ -138,15 +145,24 @@ class CanvasForParticle {
     constructor(config, particleConfig, referenceRect) {
         this.#config = config;
         this.#originalParticleConfig = particleConfig;
-        this.#colors = config.Colors;
+        this.#cornerColors = config.Colors;
         this.#referenceRect = referenceRect;
         this.#ctx = this.#config.DomCanvas.getContext('2d');
         this.#ctx.globalAlpha = 1; // Probably not in use
         this.#ctx.globalFillStyle = this.#config.GlobalFillStyle;
         this.DoColorUpdates = false;
+        this.#scatterMovements = [];
 
         this.UpdateDimensions(this.#referenceRect.Width(), this.#referenceRect.Height());
         this.#setUpParticles();
+
+        this.#config.DomCanvas.addEventListener("mousedown", (event) => {
+            this.#scatterMovements.push(new particleScatterEvent(
+                24,
+                new Point(event.clientX, event.clientY),
+                this.#referenceRect, 
+                this.#cornerColors));
+        });
     }
 
     /**
@@ -224,44 +240,81 @@ class CanvasForParticle {
      * Only if this method is called per iteration, particles are drawn to the canvas. 
      */
     DrawParticles() {
-        // That's good, because so far either all the particles are in the transient or none are. At some point I'll rebuild, and then it'll all be for nothing again:-)
-        if (this.#particles[0].IsInit()) {
-            this.#particles.forEach(actualParticle => {
-                this.#drawParticle(actualParticle);
-                actualParticle.UpdateParameters(rectControl.MousePosition());
-            });
-        }
-        else {
-            this.#particles.forEach(actualParticle => {
-                actualParticle.Lines.clear();
-                this.#drawParticle(actualParticle);
-                actualParticle.UpdateParameters(rectControl.MousePosition());
-
-                if (this.DoColorUpdates) {
-                    actualParticle.UpdateColor(this.#colors, this.#config.FactorForUsingLogisticColorFunction);
-                }
-            });
-
-            // Paint lines only when not in init.
-            if (this.#config.MaximumLinkDistances > 0) {
-                this.#doClostestStuff();
+        if (this.#particles.length >= 1) {
+            // That's good, because so far either all the particles are in the transient or none are. At some point I'll rebuild, and then it'll all be for nothing again:-)
+            if (this.#particles[0].IsInit()) {
                 this.#particles.forEach(actualParticle => {
-                    this.#drawLines(actualParticle);
-                }); 
+                    this.#drawParticle(actualParticle);
+                    actualParticle.UpdateParameters(rectControl.MousePosition());
+                });
             }
-            
+            else {
+                this.#particles.forEach(actualParticle => {
+                    actualParticle.Lines.clear();
+                    this.#drawParticle(actualParticle);
+                    actualParticle.UpdateParameters(rectControl.MousePosition());
+
+                    if (this.DoColorUpdates) {
+                        actualParticle.UpdateColor(this.#cornerColors, this.#config.FactorForUsingLogisticColorFunction);
+                    }
+                });
+
+                // Paint lines only when not in init.
+                if (this.#config.MaximumLinkDistances > 0) {
+                    this.#doClostestStuff();
+                    this.#particles.forEach(actualParticle => {
+                        this.#drawLines(actualParticle);
+                    });
+                }
+            }
         }
     }
 
-    /** Paints a single particle to this canvas. */
+    /**
+     * MustCall method.
+     * Particle scatters can only be drawn if this method is called on each loop pass. If the array "this.#scatterMovements" is empty, nothing is drawn.
+     */
+    DrawScatters() {
+        var removeMe = [];
+
+        for (let index = 0; index < this.#scatterMovements.length; index++) {
+            this.#scatterMovements[index].UpdateScatter(this.#drawParticle);
+            if (!this.#scatterMovements[index].IsAlive()) {
+                removeMe.push(index);
+            }
+
+            this.#scatterMovements[index].GetParticles().forEach(particle => {
+                //this.#drawParticle(particle);
+
+                let bezier = this.#scatterMovements[index].GetBezier(particle.GetIndex());
+                let start = bezier.GetStart();
+                let cp1 = bezier.GetCp1();
+                let cp2 = bezier.GetCp2();
+                let end = bezier.GetEnd();
+                this.#ctx.strokeStyle = this.#scatterMovements[index].GetColorRgba();
+                this.#ctx.beginPath();
+                this.#ctx.moveTo(start.x, start.y);
+                this.#ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+                this.#ctx.stroke();
+            });
+        }
+        
+        removeMe.forEach(item => {
+            this.#scatterMovements.splice(item, 1);
+        });
+    }
+
+    /**
+     * 
+     * @param {OrbitalParticle} particle 
+     */
     #drawParticle(particle) {
         // Paints a 360° (2*PI) circle at particle position and fills it
-            // So yes, this paints the particle.
-            this.#ctx.fillStyle = 'rgb(' + particle.GetColor() + ')';
-            this.#ctx.beginPath();
-            this.#ctx.arc(particle.GetPosition().x, particle.GetPosition().y, particle.GetSize() * this.#config.Dpr, 0, PI2, false);
-            this.#ctx.closePath();
-            this.#ctx.fill();
+        // So yes, this paints the particle.
+        this.#ctx.fillStyle = particle.GetColorRgb();
+        this.#ctx.beginPath();
+        this.#ctx.arc(particle.GetPosition().x, particle.GetPosition().y, particle.GetSize() * this.#config.Dpr, 0, PI2, false);
+        this.#ctx.fill();
     }
 
     /**
@@ -283,8 +336,8 @@ class CanvasForParticle {
                     particle.GetPosition().y,
                     closeParticle.GetPosition().x,
                     closeParticle.GetPosition().y);
-                gradient.addColorStop(0, 'rgba(' + particle.GetColor() + ', ' + particle.Opacities.get(indexOfClosest) * 0.6 + ')');
-                gradient.addColorStop(0.75, 'rgba(' + closeParticle.GetColor() + ', ' + particle.Opacities.get(indexOfClosest) * 0.2 + ')');
+                gradient.addColorStop(0, particle.GetColorRgba(particle.Opacities.get(indexOfClosest) * 0.6));
+                gradient.addColorStop(0.75, closeParticle.GetColorRgba(particle.Opacities.get(indexOfClosest) * 0.2));
                 // gradient.addColorStop(0, 'rgba(' + particle.GetColor() + ', ' + 1 + ')');
                 // gradient.addColorStop(0.75, 'rgba(' + closeParticle.GetColor() + ', ' + 1 + ')');
                 this.#ctx.strokeStyle = gradient;
@@ -293,6 +346,7 @@ class CanvasForParticle {
                 this.#ctx.lineTo(closeParticle.GetPosition().x, closeParticle.GetPosition().y);
                 this.#ctx.lineWidth = 1 //;particle.GetSize() * DPR * particle.Opacities[indexOfClosest]; // thats the shit.- if width >1 you need gpu as hell
                 this.#ctx.stroke();
+                this.#ctx.closePath();
             }
         }
     }
@@ -313,7 +367,7 @@ class CanvasForParticle {
             var angle = index * distanceBetweenParticles; // This is the angle in radians
             var x = Math.cos(angle) * this.#config.DomCanvas.width * factorToReduce;
             x += this.#config.DomCanvas.width / 2;
-            var y = Math.sin(angle) * this.#config.DomCanvas.height *factorToReduce;
+            var y = Math.sin(angle) * this.#config.DomCanvas.height * factorToReduce;
             y += this.#config.DomCanvas.height / 2;
 
             var particle = new OrbitalParticle(this.#originalParticleConfig, index, this.#referenceRect, new Point(x, y), angle);

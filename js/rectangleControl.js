@@ -181,6 +181,7 @@ class RectangleControl {
             this.#particleCanvas.UpdatePerIteration();
             this.#particleCanvas.DrawCenter();
             this.#particleCanvas.DrawParticles();
+            this.#particleCanvas.DrawScatters();
 
             // This binding is necessary because the function is called by RequestAnimationFrame without the current context and this is then unknown. 
             // This binding ensures that this is always known. 

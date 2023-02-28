@@ -1,5 +1,5 @@
-/** Helper class for configuring each particles. Values in here are default values. */
-class ConfigOrbitalParticle {
+/** Helper class for configuring each scatter particle. Values in here are default values. */
+class ConfigScatterParticle {
 
     /**
      * Angular velocity of a particle in radians (2*PI = 360°).
@@ -49,15 +49,6 @@ class ConfigOrbitalParticle {
         0.3,
         5);
 
-    /** Rotation of the orbital ellipse of a particle 
-     * @type {particleParameter}
-     */
-    Theta = new particleParameter(
-        0,
-        359.9,
-        0.1,
-        0);
-
     /**
      * Adaption factor for a new orbital center position relative to actual orbitalCenter.
      * #default: 0.03
@@ -72,51 +63,21 @@ class ConfigOrbitalParticle {
      * @type {Color} Like '255,255,255';  
      */
     Color = new Color(255, 255, 255);
+
+    /** Sets the maximum size of the position field.
+     * @type {number}
+     */
+    MaxPositions = 30;
 }
 
 /**
  * Class for generating the particles.
  * Class also provides methods to compute the positions, velocities, directions, sizes and colors of the particles. 
  */
-class OrbitalParticle {
-    /** 
-     * Map<number, OrbitalParticle> to identify the closest particles to the current particle. 
-     * 1: number: index of actual particle
-     * 2: OrbitalParticle: actual particle 
-     * 
-     * The parameters used to decide which and how many particles are closest to the current particle must be managed by the parent instance.
-     * @type {Map<number, OrbitalParticle>}
-     * */
-    Closest; // Use this as map/dict for linked particles with a certain maximum distance to paint lines between those particles.
-
-    /**
-     * Map<number, number> for the opacity for the ends of the connecting lines.
-     * 1: number: index of a certain particle
-     * 2: number: opacity of that certain particle 
-     * 
-     * This opacity is used to draw the connecting lines between two particles. Each particle contains a value 
-     * for its opacity for each nearby particle, which results from the distance to this nearby particle. 
-     * The connecting line is drawn using a linear colour gradient. 
-     * The values of the opacity ensure that the line becomes "darker" towards this nearby particle.
-     * 
-     * @type {Map<number, number>} 
-     */
-    Opacities;
-
-    /**
-     * Map<number, boolean> to find out whether this line already exists.
-     * 
-     * 1: number: index of a certain particle
-     * 2: bool: true if line exists 
-     * 
-     * In the main loop, it is of course iterated over all particles. If two particles A and B are close enough to draw a line, care must be 
-     * taken that this line is only drawn from A to B. As soon as both lines would be drawn, the darkening of the lines no longer works.
-     * @type {Map<number, boolean>}  
-     */
-    Lines;
+class ScatterParticle {
 
     /** Particle configuration 
-     * @type {ConfigOrbitalParticle}
+     * @type {ConfigScatterParticle}
     */
     #config;
 
@@ -149,9 +110,9 @@ class OrbitalParticle {
     #proximity;
 
     /** This is the true position of the particle in the reference frame. This position is used for drawing..  
-     * @type {Point}
+     * @type {Point[]}
      */
-    #position;
+    #positions;
 
     /** Orbital centre around which the current particle moves. 
      * A particle is in an elliptical motion around a certain centre. This centre is called the #orbitalCenter.
@@ -201,11 +162,6 @@ class OrbitalParticle {
      */
     #orbitY;
 
-    /** All particles move in rotating ellipses around the mouse cursor. Theta indicates the rotation of the ellipse.  
-     * @type {particleParameter}
-     */
-    #theta;
-
     /** The direction of rotation of the particles. Some should move clockwise and some against. 
      * This value is -1 or 1.
      * @type {number}
@@ -213,18 +169,12 @@ class OrbitalParticle {
     #diretionOfRotation;
 
     /**
-     * If true, the particle is in the transient process. The settling process continues until the current position of the 
-     * particle is very close to 'newOrbitalCenter' (UpdateParameters).
-     */
-    #init;
-
-    /**
      * Ctor
      * The position of each particle is primarily derived directly from orbitalStartPosition. The value #angle is changed per iteration by the configurable value #speed. 
-     * #angle indicates the mathematical angular position of the particle relative to #orbitalCenter. The actual #position of the particle is then calculated by further 
+     * #angle indicates the mathematical angular position of the particle relative to #orbitalCenter. The actual #positions of the particle is then calculated by further 
      * parameters such as #orbitX, #orbitY and #theta.
      * 
-     * @param {ConfigOrbitalParticle} config Particle configuration
+     * @param {ConfigScatterParticle} config Particle configuration
      * @param {number} index Index of particle in an array
      * @param {Rectangle} referenceSystem The reference system in which the particle moves.
      * @param {Point} orbitalStartPosition Start value for the orbital centre of particle motion. Value is deep copied, dont worry bout refs.
@@ -238,17 +188,12 @@ class OrbitalParticle {
         this.#proximity = new Proximity();
         this.#diretionOfRotation = changeSignRandom();
         this.#index = index;
-
-        this.Closest = new Map();
-        this.Opacities = new Map();
-        this.Lines = new Map();
+        this.#positions = [];
 
         // Positions
-        this.#position = orbitalStartPosition.Copy();
+        this.#positions.push(orbitalStartPosition.Copy());
         this.#orbitalCenter = orbitalStartPosition.Copy();
         this.#angle = angle;
-
-        // The image of the particles is deterministic at the beginning because no initial values were determined by chance.
 
         // Speed
         this.#speed = config.Speed.Clone();
@@ -266,20 +211,20 @@ class OrbitalParticle {
         this.#orbitY = config.OrbitY.Clone();
         this.#orbitY.RandomizeChangeRate();
         //this.#orbitY.RandomizeCurrentValue();
-
-
-        // Theta/rotation
-        this.#theta = config.Theta.Clone();
-        this.#theta.RandomizeChangeRate();
-
-        this.#init = true;
     }
 
     /**
      * @returns {Point} Returns the position of the particle.
      */
     GetPosition() {
-        return this.#position;
+        return this.#positions[this.#positions.length-1];
+    }
+
+    /**
+     * @returns {Point[]} Returns the last n positions of the particle.
+     */
+    GetPositions() {
+        return this.#positions;
     }
 
     /**
@@ -289,13 +234,11 @@ class OrbitalParticle {
         return this.#size.CurrentValue;
     }
 
-     /**
-     * Returns the color as string wiht a opacity to be defined in the arguments..
-     * @param {number}    randomOpacity Random opacity [0.0, 1.1]
-     * @returns {string}  Color like 'rgba(255,0,255, 0.7)'
+    /**
+     * @returns {string} Color of the particle like '255, 0, 255, 0.89'
      */
-    GetColorRgba(randomOpacity) {
-        return this.#color.Get_Rgba_StringRandomOpacity(randomOpacity);
+    GetColorRgba() {
+        return this.#color.Get_Rgba_String();
     }
 
     /**
@@ -319,13 +262,6 @@ class OrbitalParticle {
     }
 
     /**
-     * @returns {boolean} If true, the particle is in the transient process.
-     */
-    IsInit() {
-        return this.#init;
-    }
-
-    /**
      * Set max values of orbital range.
      * @param {number} xmaX New max value for orbitX.
      * @param {number} maxY New max value for orbitY.
@@ -335,47 +271,26 @@ class OrbitalParticle {
         this.#orbitY.MaximumValue = maxY;
     }
 
-    /**
-     * Update function for the parameters of a particle. This function can be called at each loop pass. 
-     * The iteration of the particle actually takes place exclusively by moving the orbital centre and changing the angular position. 
-     * @param {Point} newOrbitalCenter Center of the orbit of the current particle. This is mainly the mouse position. 
-     */
+
     UpdateParameters(newOrbitalCenter) {
         this.#orbitalCenter.AdaptToNewPoint(newOrbitalCenter, this.#orbitalCenterAdaption);
 
-        /** TODO: The more I come to this place, the more I think this doesn't belong here. Maybe the Canvas has to tell the particles 
-         * when they are in the transient process. Then you would only check for this.#init here. */
-        if (this.#init) {
-            this.#position = this.#orbitalCenter;
+        let tempPosition = this.#orbitalCenter.Copy();
 
-            /** 1.009 
-             * A beautiful arcane number that helps keep the speed of particles approaching the centre "nearly" constant. :-) 
-             * The smaller the distance between the new orbital centre and the current orbital centre, the smaller the absolute pixel increment. 
-             * And therefore the adaptation factor must be constantly increased. 
-             * Hmmm, if this were a real particle engine, the speed and direction of a particle would be available as a vector. And the particles would have weight 
-             * and attraction... but that might be going too far.
-             */
-            this.#orbitalCenterAdaption *= 1.009; // 
-            if (this.#position.distanceTo(newOrbitalCenter) < 5) {
-                // End init mode
-                this.#init = false;
-                // Reset adaption
-                this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;
-                // Important. If theta is 0 in all particles you will see always the same pattern in movement of lots of particles.
-                this.#theta.RandomizeCurrentValue();
-            }
-            return;
+        this.#orbitalCenterAdaption *= 1.03; // 
+        if (tempPosition.distanceTo(newOrbitalCenter) < 5) {
+            // Reset adaption
+            this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;
+
         }
-
         this.#angle += this.#speed.CurrentValue;
 
         // Multiplication with changeSignRandom() ensures that the particles move either clockwise or anti-clockwise.
-        this.#position = this.#orbitalCenter.GetOrbitalPoint(this.#angle * this.#diretionOfRotation, this.#orbitX.CurrentValue, this.#orbitY.CurrentValue);
-
-        // Rotate
-        this.#position = Rotate(this.#orbitalCenter, this.#position, this.#theta.CurrentValue);
-        this.#theta.IncreaseCurrentValue();
-
+        this.#positions.push(this.#orbitalCenter.GetOrbitalPoint(this.#angle * this.#diretionOfRotation, this.#orbitX.CurrentValue, this.#orbitY.CurrentValue));
+        if (this.#positions.length > this.#config.MaxPositions) {
+            this.#positions.shift();
+        }
+        
         // Change orbit
         // Hier gibts noch irgendwo ein Problem mit der Bahnberechnung
         this.#orbitX.IncreaseCurrentValue();
@@ -385,48 +300,8 @@ class OrbitalParticle {
         this.#speed.IncreaseCurrentValue();
 
         // Change the size per update
-        this.#size.IncreaseCurrentValue();
-
-        // Update proximity
-        this.#proximity.Update(this.#referenceSystem, this.#position);
-    }
-
-    UpdateParameters2(newOrbitalCenter) {
-        this.#orbitalCenter.AdaptToNewPoint(newOrbitalCenter, this.#orbitalCenterAdaption);
-
-        /** TODO: The more I come to this place, the more I think this doesn't belong here. Maybe the Canvas has to tell the particles 
-         * when they are in the transient process. Then you would only check for this.#init here. */
-        if (this.#init) {
-            this.#position = this.#orbitalCenter;
-
-            this.#orbitalCenterAdaption *= 1.03; // 
-            if (this.#position.distanceTo(newOrbitalCenter) < 5) {
-                // End init mode
-                this.#init = false;
-                // Reset adaption
-                this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;
-                // Important. If theta is 0 in all particles you will see always the same pattern in movement of lots of particles.
-                this.#theta.RandomizeCurrentValue();
-            }
-            this.#angle += this.#speed.CurrentValue;
-
-            // Multiplication with changeSignRandom() ensures that the particles move either clockwise or anti-clockwise.
-            this.#position = this.#orbitalCenter.GetOrbitalPoint(this.#angle * this.#diretionOfRotation, this.#orbitX.CurrentValue, this.#orbitY.CurrentValue);
-
-            // Change orbit
-            // Hier gibts noch irgendwo ein Problem mit der Bahnberechnung
-            this.#orbitX.IncreaseCurrentValue();
-            this.#orbitY.IncreaseCurrentValue();
-
-            // Change speed
-            this.#speed.IncreaseCurrentValue();
-
-            // Change the size per update
-            this.#size.IncreaseCurrentValue();
-            return;
-        }
-
-
+        // this.#size.IncreaseCurrentValue();
+        return;
     }
 
     /**

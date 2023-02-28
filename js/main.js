@@ -11,6 +11,7 @@ configCanvas.TrailingMousePositionAdaption = 0.03;
 configCanvas.MaximumLinkDistances = 450 * dpr;
 configCanvas.MaximumNumberOfLines = 3;
 configCanvas.DefaultMaximumMouseMoveOrbit = 100;
+configCanvas.FactorForUsingLogisticColorFunction = 0.2;
 
 // The default values for the configuration of the particles can be found in the particleParameter class.
 let particleConfig = new ConfigOrbitalParticle();
@@ -20,6 +21,7 @@ particleConfig.OrbitX = new particleParameter(10, 300, 0.4, 1);
 particleConfig.OrbitY = new particleParameter( 10,300, 0.4, 1);
 particleConfig.Theta = new particleParameter( 0,359.9, 0.1, 0);
 particleConfig.OrbitalCenterAdaption = 0.03;
+particleConfig.Color = new Color(255, 255, 255);
 
 let particleCanvas = new CanvasForParticle(configCanvas, particleConfig, refercenSystem);
 

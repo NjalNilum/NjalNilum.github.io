@@ -5,15 +5,52 @@ const PI2 = Math.PI * 2;
 const HALF_PI = Math.PI / 2;
 
 /** In Pixeldimensionen ist das ein sehr kleines Epsilon und ausreichend klein. */
-const EPS = 0.001;
+const EPS = 0.01;
 
 /**
  * Point class for computing positions, distances etc.
  */
 class Point {
+    /**
+     * Ctor.
+     * @param {number} x x coordinate
+     * @param {number} y y coordinate
+     */
     constructor(x, y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Deep copies the actual point and returns a new point. 
+     * @returns {Point} Real deep copy of actual point.
+     */
+    Copy() {
+        return new Point(this.x, this.y);
+    }
+
+    /** Adds point to actual point and returns a new point like 'result = this + point'.
+     * @param {Point} point Point to add
+     * @returns {Point} this + point
+     */
+    AddTo(point) {
+        return new Point(this.x + point.x, this.y + point.y);
+    }
+
+    /** Multiplies point to actual point and return a new pint like 'result = this * point'.
+     * @param {Point} Point Point to multiply
+     */
+    MultiplyWith(point) {
+        return new Point(this.x * point.x, this.y * point.y);
+    }
+
+    /**
+     * Computes the difference in x and in y separately and returns a new poitn like result = this - point.
+     * @param {Point} point 
+     * @returns {Point} The new point that contains the differences in x and y.
+     */
+    GetDifferencesTo(point) {
+        return new Point(Math.abs(this.x-point.x), Math.abs(this.y-point.y));
     }
 
     /**
@@ -36,6 +73,14 @@ class Point {
             return true;
         }
         return false;
+    }
+
+     /** Multiplies self with a scalar value.
+     * @param {number} scalar Scalar to multiply
+     */
+     MultiplSelfyWithScalar(scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
     }
 
     /**

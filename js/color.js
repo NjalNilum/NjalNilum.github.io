@@ -70,6 +70,7 @@ function hsvToRgb(h, s, v) {
  * As a reminder, the proximity here indicates how close a particle is to a certain corner point. With this information and the colour values of the corner points, 
  * the colour of the particle is calculated according to its position.
  * In addition, this logistic growth function is called so that fewer areas in the rectangle consist of "mixed colours".
+ * Note this function always set alpha to 1. If you work with alpha, store it before calling this piece of thing.
  * 
  * @param {Color[]} cornerColors                Array of colors within the 4 colors of the rectangle.
  * @param {number[]} proximityArray             Array within proximities to each corner of the rectangle
@@ -152,9 +153,9 @@ class Color {
   /**
    * Ctor
    * A is per default 1.
-   * @param {number} r red
-   * @param {number} g green
-   * @param {number} b blue
+   * @param {number} r red [0,255]
+   * @param {number} g green [0,255]
+   * @param {number} b blue [0,255]
    */
   constructor(r, g, b) {
     this.R = r;
@@ -205,4 +206,32 @@ class Color {
   Copy() {
     return new Color(this.R, this.G, this.B, this.A);
   }
+
+  /**
+   * Set saturation of self to 100%.
+   */
+  SetSaturationToMax(){
+    let hsv = rgbToHsv(this.R, this.G, this.B);
+    let color = hsvToRgb(hsv[0], hsv[1], 1);
+    this.R = color[0];
+    this.G = color[1];
+    this.B = color[2];
+  }
+
+  /**
+   * Randomize actual color values and return a new color object.
+   * @param {number} hue factor to multiply hue value
+   * @returns New randomized color.
+   */
+  GetRandomized(hue) {
+    let hsv = rgbToHsv(this.R, this.G, this.B);
+    let newHue = (hsv[0]*getRandom(1-hue, 1+hue));
+    if (newHue > 1) {
+      newHue = newHue - ((newHue-1) * 2);
+    }
+    let color = hsvToRgb(newHue, 1, 1);
+    return new Color(color[0], color[1], color[2]);
+  }
+
+
 }

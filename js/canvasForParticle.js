@@ -129,6 +129,12 @@ class CanvasForParticle {
      */
     #scatterMovements;
 
+    /**
+     * This flag is reset with every mousedown. This is an auxiliary flag to prevent the particles from looping again.
+     *  @type {boolean}
+     */
+    #newScatterEvent;
+
     /** 
      * If true, the colour of each particle is recalculated per iteration and depending on the proximity. Otherwise, the colour remains at the last value.
      * @type {boolean}
@@ -152,15 +158,17 @@ class CanvasForParticle {
         this.#ctx.globalFillStyle = this.#config.GlobalFillStyle;
         this.DoColorUpdates = false;
         this.#scatterMovements = [];
+        this.#newScatterEvent = false;
 
         this.UpdateDimensions(this.#referenceRect.Width(), this.#referenceRect.Height());
         this.#setUpParticles();
 
         this.#config.DomCanvas.addEventListener("mousedown", (event) => {
+            this.#newScatterEvent = true;
             this.#scatterMovements.push(new particleScatterEvent(
                 24,
-                new Point(event.clientX, event.clientY),
-                this.#referenceRect, 
+                new Point(event.clientX * this.#config.Dpr, event.clientY * this.#config.Dpr),
+                this.#referenceRect,
                 this.#cornerColors));
         });
     }
@@ -250,7 +258,12 @@ class CanvasForParticle {
             }
             else {
                 this.#particles.forEach(actualParticle => {
+                    // clean up lines, because lines must be repainted on every iteration and thats because relations may change, because of distances
                     actualParticle.Lines.clear();
+
+                    // set opacity
+                    this.#updateOpacityOfParticle(actualParticle);
+
                     this.#drawParticle(actualParticle);
                     actualParticle.UpdateParameters(rectControl.MousePosition());
 
@@ -267,6 +280,7 @@ class CanvasForParticle {
                     });
                 }
             }
+            this.#newScatterEvent = false;
         }
     }
 
@@ -278,27 +292,27 @@ class CanvasForParticle {
         var removeMe = [];
 
         for (let index = 0; index < this.#scatterMovements.length; index++) {
-            this.#scatterMovements[index].UpdateScatter(this.#drawParticle);
+            this.#scatterMovements[index].UpdateScatter();
             if (!this.#scatterMovements[index].IsAlive()) {
                 removeMe.push(index);
             }
 
-            this.#scatterMovements[index].GetParticles().forEach(particle => {
-                //this.#drawParticle(particle);
+            this.#scatterMovements[index].GetScatterParticles().forEach(particle => {
 
                 let bezier = this.#scatterMovements[index].GetBezier(particle.GetIndex());
                 let start = bezier.GetStart();
                 let cp1 = bezier.GetCp1();
                 let cp2 = bezier.GetCp2();
                 let end = bezier.GetEnd();
-                this.#ctx.strokeStyle = this.#scatterMovements[index].GetColorRgba();
+                this.#ctx.strokeStyle = particle.GetColorRgba();
+                this.#ctx.lineWidth = 1;
                 this.#ctx.beginPath();
                 this.#ctx.moveTo(start.x, start.y);
                 this.#ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
                 this.#ctx.stroke();
             });
         }
-        
+
         removeMe.forEach(item => {
             this.#scatterMovements.splice(item, 1);
         });
@@ -311,7 +325,7 @@ class CanvasForParticle {
     #drawParticle(particle) {
         // Paints a 360° (2*PI) circle at particle position and fills it
         // So yes, this paints the particle.
-        this.#ctx.fillStyle = particle.GetColorRgb();
+        this.#ctx.fillStyle = particle.GetColorRgba();
         this.#ctx.beginPath();
         this.#ctx.arc(particle.GetPosition().x, particle.GetPosition().y, particle.GetSize() * this.#config.Dpr, 0, PI2, false);
         this.#ctx.fill();
@@ -336,10 +350,11 @@ class CanvasForParticle {
                     particle.GetPosition().y,
                     closeParticle.GetPosition().x,
                     closeParticle.GetPosition().y);
-                gradient.addColorStop(0, particle.GetColorRgba(particle.Opacities.get(indexOfClosest) * 0.6));
-                gradient.addColorStop(0.75, closeParticle.GetColorRgba(particle.Opacities.get(indexOfClosest) * 0.2));
-                // gradient.addColorStop(0, 'rgba(' + particle.GetColor() + ', ' + 1 + ')');
-                // gradient.addColorStop(0.75, 'rgba(' + closeParticle.GetColor() + ', ' + 1 + ')');
+                
+                let alpha = particle.Opacities.get(indexOfClosest)*particle.GetAlpha();
+                gradient.addColorStop(0, particle.GetColorRgbaRandomOpacity(alpha * 0.6));
+                gradient.addColorStop(0.75, closeParticle.GetColorRgbaRandomOpacity(alpha * 0.2));
+                
                 this.#ctx.strokeStyle = gradient;
                 this.#ctx.beginPath();
                 this.#ctx.moveTo(particle.GetPosition().x, particle.GetPosition().y);
@@ -431,6 +446,21 @@ class CanvasForParticle {
                 }
                 indexOfInnerParticle = (indexOfInnerParticle + 1) % this.#particles.length;
             } while (indexOfInnerParticle != randomParticleStartOfLoop)
+        }
+    }
+
+    /**
+     * This function updates the opacity of the particles depending on the current value, whether they are in a special movement (init) and whether it is a new scatter event.
+     * @param {OrbitalParticle} particle 
+     */
+    #updateOpacityOfParticle(particle) {
+        if (!particle.IsInit()) {
+            if (this.#newScatterEvent) {
+                particle.SetAlpha(0.01);
+            }
+            else if (particle.GetAlpha() < 1) {
+                particle.SetAlpha(particle.GetAlpha() * 1.01);
+            }
         }
     }
 }

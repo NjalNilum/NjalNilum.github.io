@@ -84,7 +84,7 @@ function PressFullScreen() {
             document.msExitFullscreen();
         }
     }
-    rectControl.UpdateDimensions();
+    particleCanvas.UpdateDimensions();
 }
 
 /** Click event for hiding all elements. Fuck you, if you do this :-) */

@@ -105,11 +105,8 @@ class Bezier {
         this.#cubicCp1.AdaptToNewPoint(this.#newCubicCp1, this.#variableAdaption.x);
         this.#cubicCp2.AdaptToNewPoint(this.#newCubicCp2, this.#variableAdaption.y);
 
-        this.#variableAdaption.MultiplSelfyWithScalar(1.1);
+        this.#variableAdaption.MultiplSelfyWithScalar(1.05);
 
         this.#updateAbsoluteControlPoints();
     }
-
-
-    // Die cps müssen noch cubic genannt werden und diese Rechnung im Ctor muss in die Update-Methode um die kubische und bewegte Kurve in das aktuelle Pixelsystem zu überttragen
 }

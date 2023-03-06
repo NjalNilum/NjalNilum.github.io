@@ -232,9 +232,13 @@ class OrbitalParticle {
      */
     constructor(config, index, referenceSystem, orbitalStartPosition, angle) {
         this.#config = config;
+        /**
+         * Arcane numbers everywhere you look. At the beginning, the adaptation is reduced so that the transient looks nicer:-) After the swing-in applies:
+         * this.#orbitalCenterAdaption = config.OrbitalCenterAdaption
+         */
         this.#orbitalCenterAdaption = config.OrbitalCenterAdaption * 0.2;
         this.#referenceSystem = referenceSystem;
-        this.#color = config.Color;
+        this.#color = config.Color.Copy();
         this.#proximity = new Proximity();
         this.#diretionOfRotation = changeSignRandom();
         this.#index = index;
@@ -294,7 +298,7 @@ class OrbitalParticle {
      * @param {number}    randomOpacity Random opacity [0.0, 1.1]
      * @returns {string}  Color like 'rgba(255,0,255, 0.7)'
      */
-    GetColorRgba(randomOpacity) {
+    GetColorRgbaRandomOpacity(randomOpacity) {
         return this.#color.Get_Rgba_StringRandomOpacity(randomOpacity);
     }
 
@@ -306,11 +310,34 @@ class OrbitalParticle {
     }
 
     /**
+    * @returns {string} Color of the particle like 'rgba(255, 0, 255, 0.6)'
+    */
+    GetColorRgba() {
+        return this.#color.Get_Rgba_String();
+    }
+
+    /**
      * Sets a new color to the particle.
-     * @param {string} newColor Like '255, 123, 244'
+     * @param {Color} newColor Like '255, 123, 244'
      */
     SetColor(newColor) {
         this.#color = newColor;
+    }
+
+    /**
+     * Returns alpha of particle color.
+     * @returns {number} Alpha value of particle color.
+     */
+    GetAlpha() {
+        return this.#color.A;
+    }
+
+    /**
+     * Sets alpha of particle color.
+     * @param {number} alpha New alpha of particle. 
+     */
+    SetAlpha(alpha) {
+        this.#color.A = alpha;
     }
 
     /** @returns {number} Returns the index of the particle in an array. */
@@ -391,44 +418,6 @@ class OrbitalParticle {
         this.#proximity.Update(this.#referenceSystem, this.#position);
     }
 
-    UpdateParameters2(newOrbitalCenter) {
-        this.#orbitalCenter.AdaptToNewPoint(newOrbitalCenter, this.#orbitalCenterAdaption);
-
-        /** TODO: The more I come to this place, the more I think this doesn't belong here. Maybe the Canvas has to tell the particles 
-         * when they are in the transient process. Then you would only check for this.#init here. */
-        if (this.#init) {
-            this.#position = this.#orbitalCenter;
-
-            this.#orbitalCenterAdaption *= 1.03; // 
-            if (this.#position.distanceTo(newOrbitalCenter) < 5) {
-                // End init mode
-                this.#init = false;
-                // Reset adaption
-                this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;
-                // Important. If theta is 0 in all particles you will see always the same pattern in movement of lots of particles.
-                this.#theta.RandomizeCurrentValue();
-            }
-            this.#angle += this.#speed.CurrentValue;
-
-            // Multiplication with changeSignRandom() ensures that the particles move either clockwise or anti-clockwise.
-            this.#position = this.#orbitalCenter.GetOrbitalPoint(this.#angle * this.#diretionOfRotation, this.#orbitX.CurrentValue, this.#orbitY.CurrentValue);
-
-            // Change orbit
-            // Hier gibts noch irgendwo ein Problem mit der Bahnberechnung
-            this.#orbitX.IncreaseCurrentValue();
-            this.#orbitY.IncreaseCurrentValue();
-
-            // Change speed
-            this.#speed.IncreaseCurrentValue();
-
-            // Change the size per update
-            this.#size.IncreaseCurrentValue();
-            return;
-        }
-
-
-    }
-
     /**
      * This method updates the colour of the particle depending on its position in the rectangle.
      * @param {Color[]} cornerColors  
@@ -437,7 +426,9 @@ class OrbitalParticle {
     UpdateColor(cornerColors, factorForUsingLogisticColorFunction) {
         // Color
         if (typeof this.#proximity !== 'undefined') {
+            let alpha = this.#color.A;
             this.#color = getColor(cornerColors, this.#proximity.GetProximities(), factorForUsingLogisticColorFunction);
+            this.#color.A = alpha;
         }
         else {
             this.#color.SetWhite();

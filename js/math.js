@@ -86,8 +86,8 @@ class Point {
     /**
      * Move the current point to the new point. With the help of the adption factor you can determine how big the shift should be. 
      * The adaptation factor lies between 0 and 1 and is to be understood as a percentage value. 
-     * @param {*} newPoint Point to move the current point.
-     * @param {*} adaption Strength of movement. 1 means this = newPoint and 0 means no changes in this.
+     * @param {Point} newPoint Point to move the current point.
+     * @param {Point} adaption Strength of movement. 1 means this = newPoint and 0 means no changes in this.
      */
     AdaptToNewPoint(newPoint, adaption) {
         this.x += (newPoint.x - this.x) * adaption;

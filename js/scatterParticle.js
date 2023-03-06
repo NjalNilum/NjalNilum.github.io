@@ -57,7 +57,7 @@ class ConfigScatterParticle {
      * 0.0 means orbitalCenter will never reach new orbitalCenter. 
      * @type {number}
      */
-    OrbitalCenterAdaption = 0.03;
+    OrbitalCenterAdaption = 0.001;
 
     /** Default colour for particles.
      * @type {Color} Like '255,255,255';  
@@ -65,6 +65,7 @@ class ConfigScatterParticle {
     Color = new Color(255, 255, 255);
 
     /** Sets the maximum size of the position field.
+     * Default is 30.
      * @type {number}
      */
     MaxPositions = 30;
@@ -87,13 +88,6 @@ class ScatterParticle {
      * @type {number}
      */
     #index;
-
-    /** 
-     * Contains the parameters of the rectangle in which the particle is displayed.
-     * These are, height, width, coordinates of the corners.
-     * @type {Rectangle}
-     */
-    #referenceSystem;
 
     /** Color of actual particle. The colour of a particle depends on its position in the canvas.
      * @type {Color} Color array like this [155, 255, 255];  
@@ -176,14 +170,12 @@ class ScatterParticle {
      * 
      * @param {ConfigScatterParticle} config Particle configuration
      * @param {number} index Index of particle in an array
-     * @param {Rectangle} referenceSystem The reference system in which the particle moves.
      * @param {Point} orbitalStartPosition Start value for the orbital centre of particle motion. Value is deep copied, dont worry bout refs.
      * @param {number} angle Start value for the incremental angle calculation of the particle.
      */
-    constructor(config, index, referenceSystem, orbitalStartPosition, angle) {
+    constructor(config, index, orbitalStartPosition, angle) {
         this.#config = config;
-        this.#orbitalCenterAdaption = config.OrbitalCenterAdaption * 0.2;
-        this.#referenceSystem = referenceSystem;
+        this.#orbitalCenterAdaption = config.OrbitalCenterAdaption //* 0.2;
         this.#color = config.Color;
         this.#proximity = new Proximity();
         this.#diretionOfRotation = changeSignRandom();
@@ -206,11 +198,9 @@ class ScatterParticle {
         // Orbit
         this.#orbitX = config.OrbitX.Clone();
         this.#orbitX.RandomizeChangeRate();
-        //this.#orbitX.RandomizeCurrentValue();
 
         this.#orbitY = config.OrbitY.Clone();
         this.#orbitY.RandomizeChangeRate();
-        //this.#orbitY.RandomizeCurrentValue();
     }
 
     /**
@@ -225,13 +215,6 @@ class ScatterParticle {
      */
     GetPositions() {
         return this.#positions;
-    }
-
-    /**
-     * @returns {number} Returns the current value of the size of the particle.
-     */
-    GetSize() {
-        return this.#size.CurrentValue;
     }
 
     /**
@@ -250,7 +233,7 @@ class ScatterParticle {
 
     /**
      * Sets a new color to the particle.
-     * @param {string} newColor Like '255, 123, 244'
+     * @param {Color} newColor Like '255, 123, 244'
      */
     SetColor(newColor) {
         this.#color = newColor;
@@ -262,22 +245,15 @@ class ScatterParticle {
     }
 
     /**
-     * Set max values of orbital range.
-     * @param {number} xmaX New max value for orbitX.
-     * @param {number} maxY New max value for orbitY.
+     * Update the parameters per iteration.
+     * @param {Point} newOrbitalCenter New center of the particle.
      */
-    UpdateOrbit(xmaX, maxY) {
-        this.#orbitX.MaximumValue = xmaX;
-        this.#orbitY.MaximumValue = maxY;
-    }
-
-
     UpdateParameters(newOrbitalCenter) {
         this.#orbitalCenter.AdaptToNewPoint(newOrbitalCenter, this.#orbitalCenterAdaption);
 
         let tempPosition = this.#orbitalCenter.Copy();
 
-        this.#orbitalCenterAdaption *= 1.03; // 
+        this.#orbitalCenterAdaption *= 1.01; // 
         if (tempPosition.distanceTo(newOrbitalCenter) < 5) {
             // Reset adaption
             this.#orbitalCenterAdaption = this.#config.OrbitalCenterAdaption;
@@ -298,10 +274,6 @@ class ScatterParticle {
 
         // Change speed
         this.#speed.IncreaseCurrentValue();
-
-        // Change the size per update
-        // this.#size.IncreaseCurrentValue();
-        return;
     }
 
     /**

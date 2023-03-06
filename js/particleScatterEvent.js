@@ -2,7 +2,7 @@ class particleScatterEvent {
     /** Array of particles to show on canvas 
      * @type {ScatterParticle[]}
      */
-    #particles;
+    #scatterParticles;
 
     /**
      * Array for the beziers curves
@@ -22,11 +22,6 @@ class particleScatterEvent {
      */
     #opacity;
 
-    /** Colour of actual scatter event. The colour of a sctter event depends on its position in the canvas.
-     * @type {Color} Color array like this [155, 255, 255];  
-    */
-    #color;
-
     /**
      * Ctor.
      * Current value is set randomly between min and max.
@@ -42,15 +37,15 @@ class particleScatterEvent {
         particleConfig.Size = new particleParameter(1, 1, 0, 1);
         particleConfig.OrbitX = new particleParameter(10, 400, 1, 3);
         particleConfig.OrbitY = new particleParameter(10, 400, 1, 3);
-        particleConfig.OrbitalCenterAdaption = 0.003;
-        particleConfig.MaxPositions = 30;
+        particleConfig.OrbitalCenterAdaption = 0.001;
+        particleConfig.MaxPositions = 50;
 
         let proximity = new Proximity();
         proximity.Update(referenceRect, centerPosition);
-        this.#color = getColor(cornerColors, proximity.GetProximities(), 0.7);
+        let color = getColor(cornerColors, proximity.GetProximities(), 0);
 
         this.#opacity = 1;
-        this.#setUpParticles(amount, centerPosition, referenceRect, particleConfig);
+        this.#setUpParticles(amount, centerPosition, referenceRect, particleConfig, color);
     }
 
     /** Returns false if opacity is smaller than EPS, otherwise true. */
@@ -65,27 +60,19 @@ class particleScatterEvent {
      * On every iteration update the parameter of the currunt scatter.
      */
     UpdateScatter() {
-        this.#particles.forEach(particle => {
+        this.#scatterParticles.forEach(particle => {
             particle.UpdateParameters(this.#targetPositions[particle.GetIndex()]);
             this.#updateBezier(particle);
             particle.UpdateAlpha(this.#opacity);
         });
-        this.#opacity *= 0.98;
-        this.#color.A = this.#opacity;
-    }
-
-    /**
-     * @returns {string} Color of the particle like 'rgb(255, 0, 255)'
-     */
-    GetColorRgba() {
-        return this.#color.Get_Rgba_String();
+        this.#opacity *= 0.99;
     }
 
     /** Return all particles for painting on canvas. 
      * @returns {ScatterParticle[]}
     */
-    GetParticles() {
-        return this.#particles;
+    GetScatterParticles() {
+        return this.#scatterParticles;
     }
 
     /**
@@ -102,9 +89,10 @@ class particleScatterEvent {
     * @param {Point} centerPosition    Center position where the movement starts
     * @param {Rectangle} referenceRect The reference system with the basal values of the rectangle to be drawn in.
     * @param {configOrbitalParticle} particleConfig These are the default configuration parameters of the particles.
+    * @param {Color} color                          Color of the particle. Incoming color is the color of the position where the particle was created.
     */
-    #setUpParticles(amount, centerPosition, referenceRect, particleConfig) {
-        this.#particles = [];
+    #setUpParticles(amount, centerPosition, referenceRect, particleConfig, color) {
+        this.#scatterParticles = [];
         this.#beziers = [];
         this.#targetPositions = [];
         var distanceBetweenParticles = PI2 / amount;
@@ -116,18 +104,18 @@ class particleScatterEvent {
             x += referenceRect.Width() / 2;
             var y = Math.sin(angle) * referenceRect.Height();
             y += referenceRect.Height() / 2;
-
             this.#targetPositions.push(new Point(x, y));
-            var particle = new ScatterParticle(particleConfig, index, referenceRect, centerPosition, angle);
-            this.#particles.push(particle);
-            var bezier = new Bezier(particle.GetPosition(), particle.GetPosition(), new Point(0.05, 0.05));
+            var particle = new ScatterParticle(particleConfig, index, centerPosition, angle);
+            particle.SetColor(color.GetRandomized(0.2));
+            this.#scatterParticles.push(particle);
+            var bezier = new Bezier(particle.GetPosition(), particle.GetPosition(), new Point(0.02, 0.02));
             this.#beziers.push(bezier);
         }
     }
 
     /**
-     * 
-     * @param {ScatterParticle} particle 
+     * Updates the bezier parameters.
+     * @param {ScatterParticle} particle Particle to update.
      */
     #updateBezier(particle)
     {

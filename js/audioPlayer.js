@@ -4,10 +4,10 @@
  */
 class AudioPlayer {
     constructor() {
-        this.Audio_A = new Audio("/mp3/forest-lullaby-110624.mp3");
-        this.Audio_B = new Audio("/mp3/lifelike-126735.mp3");
-        this.Audio_C = new Audio("/mp3/password-infinity-123276.mp3");
-        this.Audio_D = new Audio("/mp3/relaxed-vlog-131746.mp3");
+        this.Audio_A = new Audio("/mp3/leftTop.mp3");
+        this.Audio_B = new Audio("/mp3/rightTop.mp3");
+        this.Audio_C = new Audio("/mp3/rightBottom.mp3");
+        this.Audio_D = new Audio("/mp3/leftBottom.mp3");
 
         // check synchronicity between the players
         // this.Audio_A = new Audio("/mp3/lifelike-126735.mp3");
@@ -15,7 +15,8 @@ class AudioPlayer {
         // this.Audio_C = new Audio("/mp3/lifelike-126735.mp3");
         // this.Audio_D = new Audio("/mp3/lifelike-126735.mp3");
 
-        this.Audio_Beat = new Audio("/mp3/toy-story.mp3");
+        this.Audio_Beat = new Audio("/mp3/baseSub.mp3");
+        this.internSetVolume(this.Audio_Beat, 1);
     }
 
     /**
@@ -38,8 +39,6 @@ class AudioPlayer {
         this.internSetVolume(this.Audio_B, array[1]);
         this.internSetVolume(this.Audio_C, array[2]);
         this.internSetVolume(this.Audio_D, array[3]);
-
-        this.internSetVolume(this.Audio_Beat, 0.75);
     }
 
     /**
@@ -81,6 +80,10 @@ class AudioPlayer {
      * Play impact. 
      */
     PlayImpact() {
+        this.internSetVolume(this.Audio_Beat, 0);
+        this.Audio_Beat.pause();
+        this.Audio_Beat.currentTime=0;
+        this.internSetVolume(this.Audio_Beat, 1);
         this.Audio_Beat.play();
     }
 }

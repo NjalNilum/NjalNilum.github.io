@@ -65,7 +65,7 @@ class particleScatterEvent {
             this.#updateBezier(particle);
             particle.UpdateAlpha(this.#opacity);
         });
-        this.#opacity *= 0.99;
+        this.#opacity *= 0.996;
     }
 
     /** Return all particles for painting on canvas. 

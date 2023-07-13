@@ -251,6 +251,9 @@ class RectangleControl {
             this.#particleCanvas.UpdateOrbit(this.#mouseTrackingActive);
         });
 
+        this.#particleCanvas.GetDomCanvas().addEventListener("mousedown", (event) => {
+            this.#audioPlayer.PlayImpact();
+        });
     }
 
     /**

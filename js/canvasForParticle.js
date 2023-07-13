@@ -305,7 +305,7 @@ class CanvasForParticle {
                 let cp2 = bezier.GetCp2();
                 let end = bezier.GetEnd();
                 this.#ctx.strokeStyle = particle.GetColorRgba();
-                this.#ctx.lineWidth = 1;
+                this.#ctx.lineWidth = 0.1;
                 this.#ctx.beginPath();
                 this.#ctx.moveTo(start.x, start.y);
                 this.#ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);

@@ -96,7 +96,7 @@ class RectangleControl {
 
         this.#addEvents();
         this.UpdateRectAndMovement();
-        this.#calculateMousePointerProximities();
+        this.#calculateMousePointerProximities(this.#trailingMousePosition);
 
 
         this.#hasStarted = false;
@@ -266,7 +266,7 @@ class RectangleControl {
             this.#mousePosition.x = newX;
             this.#mousePosition.y = newY;
 
-            this.#calculateMousePointerProximities();
+            this.#calculateMousePointerProximities(this.#trailingMousePosition);
             this.#audioPlayer.SetVolume(this.#mouseProximities.GetProximities());
         }
     }
@@ -278,7 +278,7 @@ class RectangleControl {
         this.#mousePosition.x = this.#referenceRect.Width() / 2;
         this.#mousePosition.y = this.#referenceRect.Height() / 2;
 
-        this.#calculateMousePointerProximities();
+        this.#calculateMousePointerProximities(this.#mousePosition);
         this.#audioPlayer.SetVolume(this.#mouseProximities.GetProximities());
 
     }
@@ -296,8 +296,9 @@ class RectangleControl {
      * I.e if mouse pointer is at top left exactly the resulting array looks like so [1,0,0,0].
      * Proximity values are normalized [0,1], where 0 means the maximum distance and 1 means the closest position to
      * a specified corner position. This will only work for rectangles btw.
+     * @param {Point} pointOfInterest   The proximities to the corner points of the rectangle are calculated for this point.
      */
-    #calculateMousePointerProximities() {
-        this.#mouseProximities.Update(this.#referenceRect, this.#trailingMousePosition);
+    #calculateMousePointerProximities(pointOfInterest) {
+        this.#mouseProximities.Update(this.#referenceRect, pointOfInterest);
     }
 }

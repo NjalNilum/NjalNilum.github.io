@@ -30,6 +30,7 @@ configRectControl.TrailingMousePositionAdaption = 0.03;
 let rectControl = new RectangleControl(configRectControl, refercenSystem, particleCanvas, audioPlayer);
 
 // this starts all
+particleCanvas.DoColorUpdates = true;
 rectControl.Start();
 
 
@@ -43,13 +44,11 @@ function PressPause() {
 function PressStop() {
     audioPlayer.Stop();
     rectControl.Reset();
-    particleCanvas.DoColorUpdates = false;
 }
 
 /** Click on PLay button */
 function PressPlay() {
     audioPlayer.Play();
-    particleCanvas.DoColorUpdates = true;
     rectControl.Start();
 }
 
@@ -57,6 +56,11 @@ function PressPlay() {
 function PressMouseTracking() {
     var checkBox = document.getElementById("mouseTracking");
     rectControl.SetMouseTracking(checkBox.checked);
+}
+
+function PressColours() {
+    var checkBox = document.getElementById("colours");
+    particleCanvas.DoColorUpdates = checkBox.checked;
 }
 
 /** Click event full screen */

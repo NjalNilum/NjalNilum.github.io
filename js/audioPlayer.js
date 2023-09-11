@@ -107,7 +107,6 @@ class AudioPlayer {
             this.#intervalId = -1;
           }
         }
-        console.log(this.#volumeAdjust);
         this.#setVolumeFromArray(this.#volumeAdjust);
     }
 

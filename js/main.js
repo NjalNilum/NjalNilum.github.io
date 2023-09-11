@@ -31,6 +31,7 @@ let rectControl = new RectangleControl(configRectControl, refercenSystem, partic
 
 // this starts all
 particleCanvas.DoColorUpdates = true;
+document.getElementById("colours").checked = true;
 rectControl.Start();
 
 
@@ -58,6 +59,7 @@ function PressMouseTracking() {
     rectControl.SetMouseTracking(checkBox.checked);
 }
 
+/** Click event for color adaption */
 function PressColours() {
     var checkBox = document.getElementById("colours");
     particleCanvas.DoColorUpdates = checkBox.checked;
